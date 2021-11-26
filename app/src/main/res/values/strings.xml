@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">planner</string>
+    <string name="label_login">Login</string>
+    <string name="sign_up_login">Sign up/Login</string>
+    <string name="floating_button">floating_button</string>
+    <string name="planner">planner</string>
+</resources>
