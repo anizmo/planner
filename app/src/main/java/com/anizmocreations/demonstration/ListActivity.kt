@@ -2,6 +2,7 @@ package com.anizmocreations.demonstration
 
 import android.content.Context
 import android.os.Bundle
+import android.text.TextUtils
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -12,9 +13,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionManager
 import com.anizmocreations.demonstration.adapter.TaskListAdapter
+import com.anizmocreations.demonstration.model.Task
 import kotlinx.android.synthetic.main.activity_list.*
 
-
+/**
+ * Activity that houses the planner list, progress bar and create the option to add a new item to
+ * the planner list.
+ */
 class ListActivity : AppCompatActivity(), TaskListListener {
 
     private var taskAdapter: TaskListAdapter? = null
@@ -31,6 +36,35 @@ class ListActivity : AppCompatActivity(), TaskListListener {
             taskList = Utils.getList(this)
         }
 
+        setupFloatingActionButton()
+
+        setupEditText()
+
+        setupRecyclerView()
+        updateProgress()
+
+    }
+
+    /**
+     * Setup up the IME_ACTION_DONE, this method is called when the user presses return
+     * (enter) on the soft-keyboard.
+     */
+    private fun setupEditText() {
+        edit_task_name.setOnEditorActionListener(OnEditorActionListener { v, actionId, event ->
+            val newTaskName = edit_task_name.text.toString()
+            if (actionId == EditorInfo.IME_ACTION_DONE && !TextUtils.isEmpty(newTaskName)) {
+                (taskList as ArrayList).add(0, Task(newTaskName))
+                taskAdapter?.notifyDataSetChanged()
+                task_list.scrollToPosition(0)
+                edit_task_name.text.clear()
+                updateProgress()
+                return@OnEditorActionListener true
+            }
+            false
+        })
+    }
+
+    private fun setupFloatingActionButton() {
         fab.setOnClickListener {
             if (add_new_item.visibility == View.VISIBLE) {
                 edit_task_name.clearFocus()
@@ -48,23 +82,6 @@ class ListActivity : AppCompatActivity(), TaskListListener {
             }
             updateProgress()
         }
-
-        edit_task_name.setOnEditorActionListener(OnEditorActionListener { v, actionId, event ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                (taskList as ArrayList).add(0, Task(edit_task_name.text.toString(),
-                    false))
-                taskAdapter?.notifyDataSetChanged()
-                task_list.scrollToPosition(0)
-                edit_task_name.text.clear()
-                updateProgress()
-                return@OnEditorActionListener true
-            }
-            false
-        })
-
-        setupRecyclerView()
-        updateProgress()
-
     }
 
     private fun setupRecyclerView() {
@@ -96,10 +113,11 @@ class ListActivity : AppCompatActivity(), TaskListListener {
 
     override fun updateProgress() {
         var completed = 0
-        Utils.setList(Utils.KEY_PREFS, taskList, this)
+        //Calling Java code from a Kotlin file
+        Utils.setList(taskList, this)
         taskList?.forEach { if(it.completed) { completed++ } }
-        progress_indicator.progress = Utils.getPercentageFromTwoNumbers(completed,
-            taskList?.size?:0)
+        progress_indicator.progress =
+            Utils.getPercentageFromTwoNumbers(completed, taskList?.size?:0)
         TransitionManager.beginDelayedTransition(parent_constraint_layout)
     }
 

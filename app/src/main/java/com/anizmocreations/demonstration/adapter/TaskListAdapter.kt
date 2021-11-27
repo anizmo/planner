@@ -1,13 +1,11 @@
 package com.anizmocreations.demonstration.adapter
 
 import android.content.Context
-import android.os.Build
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.anizmocreations.demonstration.R
-import com.anizmocreations.demonstration.Task
+import com.anizmocreations.demonstration.model.Task
 import com.anizmocreations.demonstration.TaskListListener
 
 /**
